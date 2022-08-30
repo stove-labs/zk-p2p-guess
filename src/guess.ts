@@ -6,7 +6,7 @@ import { Poseidon, SmartContract, UInt64, method } from 'snarkyjs';
  *
  * TODO: get rid of the 'any' return, defining the class inline causes an error otherwise
  */
-export const guessFactory = (challange: UInt64): any => {
+export const guessFactory = (challange: UInt64) => {
   // hashed challange to be guessed by the challanged party
   const challangeHash = Poseidon.hash(challange.toFields());
 
