@@ -1,3 +1,2 @@
-import { Add } from './Add.js';
-
-export { Add };
+import * as helpers from './helpers';
+export default { helpers };
