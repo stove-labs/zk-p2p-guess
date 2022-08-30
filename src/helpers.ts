@@ -8,8 +8,8 @@ import {
   ZkappPublicInput,
   verify as snarkyVerify,
 } from 'snarkyjs';
-import { guessFactory } from './guess.js';
-import type { Guess } from './guess.js';
+import { guessFactory } from './guess';
+import type { Guess } from './guess';
 
 // TODO: extract this type from snarkyjs directly
 export type CompiledContract = Awaited<
