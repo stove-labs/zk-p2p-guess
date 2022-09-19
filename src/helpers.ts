@@ -1,6 +1,6 @@
 import {
   Mina,
-  Party,
+  AccountUpdate,
   PrivateKey,
   Proof,
   SmartContract,
@@ -8,8 +8,8 @@ import {
   ZkappPublicInput,
   verify as snarkyVerify,
 } from 'snarkyjs';
-import { guessFactory } from './guess';
-import type { Guess } from './guess';
+import { guessFactory, guessFactoryFromHash } from './guess';
+import { Guess } from './guess';
 
 // TODO: extract this type from snarkyjs directly
 export type CompiledContract = Awaited<
@@ -27,13 +27,27 @@ export const challangeToContract = async (
   challange: string | number
 ): Promise<{
   compiledContract: CompiledContract;
-  contract: Guess;
+  contract: typeof Guess;
 }> => {
-  const { Guess: contract } = guessFactory(new UInt64(challange));
+  const contract = guessFactory(new UInt64(challange));
   console.log('compiling');
-  const compiledContract = await contract.compile(
-    zkAppPrivateKey.toPublicKey()
-  );
+  const compiledContract = await contract.compile();
+  return {
+    contract,
+    compiledContract,
+  };
+};
+
+export const challangeHashToContract = async (
+  zkAppPrivateKey: PrivateKey,
+  challangeHash: string
+): Promise<{
+  compiledContract: CompiledContract;
+  contract: typeof Guess;
+}> => {
+  const contract = guessFactoryFromHash(challangeHash);
+  console.log('compiling');
+  const compiledContract = await contract.compile();
   return {
     contract,
     compiledContract,
@@ -66,13 +80,13 @@ export const deploy = async (
   zkAppPrivateKey: PrivateKey,
   feePayer: PrivateKey,
   contract: Awaited<ReturnType<typeof challangeToContract>>['contract']
-): Promise<InstanceType<Guess>> => {
+): Promise<Guess> => {
   const contractInstance = new contract(zkAppPrivateKey.toPublicKey());
 
   console.log('deploying');
   const tx = await Mina.transaction(feePayer, () => {
     // TODO: extract funding to beforeEach
-    Party.fundNewAccount(feePayer);
+    AccountUpdate.fundNewAccount(feePayer);
     contractInstance.deploy({ zkappKey: zkAppPrivateKey });
   });
 
@@ -95,7 +109,6 @@ export const proveGuess = async (
     contractInstance.guess(new UInt64(guess));
   });
 
-  console.log('proving');
   // TODO: figure out why is there an array?
   const proof = (await tx.prove())[0];
   if (!proof) throw new Error('No proof found');
