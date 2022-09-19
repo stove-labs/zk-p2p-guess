@@ -31,7 +31,9 @@ export const challangeToContract = async (
 }> => {
   const contract = guessFactory(new UInt64(challange));
   console.log('compiling');
-  const compiledContract = await contract.compile();
+  const compiledContract = await contract.compile(
+    zkAppPrivateKey.toPublicKey()
+  );
   return {
     contract,
     compiledContract,
@@ -47,7 +49,9 @@ export const challangeHashToContract = async (
 }> => {
   const contract = guessFactoryFromHash(challangeHash);
   console.log('compiling');
-  const compiledContract = await contract.compile();
+  const compiledContract = await contract.compile(
+    zkAppPrivateKey.toPublicKey()
+  );
   return {
     contract,
     compiledContract,
