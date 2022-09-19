@@ -1,6 +1,6 @@
 import {
   Mina,
-  AccountUpdate,
+  Party,
   PrivateKey,
   Proof,
   SmartContract,
@@ -90,7 +90,7 @@ export const deploy = async (
   console.log('deploying');
   const tx = await Mina.transaction(feePayer, () => {
     // TODO: extract funding to beforeEach
-    AccountUpdate.fundNewAccount(feePayer);
+    Party.fundNewAccount(feePayer);
     contractInstance.deploy({ zkappKey: zkAppPrivateKey });
   });
 
