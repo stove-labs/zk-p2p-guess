@@ -9,13 +9,13 @@ export default {
     },
   },
   transform: {
-    // '^.+\\.(t)s$': 'ts-jest',
-    // '^.+\\.(j)s$': 'babel-jest',
-    '^.+\\.(ts|js)$': 'ts-jest',
+    '^.+\\.(t)s$': 'ts-jest',
+    '^.+\\.(j)s$': 'babel-jest',
+    // '^.+\\.(ts|js)$': 'ts-jest',
   },
   resolver: '<rootDir>/jest-resolver.cjs',
   transformIgnorePatterns: [
-    // '<rootDir>/node_modules/(?!snarkyjs/node_modules/tslib)',
-    // '<rootDir>/node_modules/(?!tslib)',
+    '<rootDir>/node_modules/(?!snarkyjs/node_modules/tslib)',
+    '<rootDir>/../../snarkyjs/node_modules/tslib',
   ],
 };

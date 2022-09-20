@@ -1,4 +1,11 @@
-import { isReady, PrivateKey } from 'snarkyjs';
+import {
+  Field,
+  isReady,
+  PrivateKey,
+  Proof,
+  UInt64,
+  ZkappPublicInput,
+} from 'snarkyjs';
 import { Guess } from './guess';
 import {
   proveGuess,
@@ -9,6 +16,17 @@ import {
   compiledContractToVerificationKey,
   verify,
 } from './helpers';
+
+export type JsonProof = {
+  publicInput: string[];
+  maxProofsVerified: 0 | 1 | 2;
+  proof: string;
+};
+
+export type Provable = {
+  proof: JsonProof;
+  verificationKey: string;
+};
 
 /**
  * We need a fixed private key, not a randomly generated one within the test suite.
@@ -21,12 +39,16 @@ const privateKeyJSON = {
 const challenges = [
   // index is the UInt64 challange, value is the verification key's hash for the generated smart contract
   {
-    challenge: 0,
+    challenge: 99999,
     verificationKey: {
       hash: '15222166407348745997273130127832025587862262899730353976308997754264327652671',
     },
   },
 ];
+
+class TestProof extends Proof<ZkappPublicInput> {}
+
+TestProof.publicInputType = ZkappPublicInput;
 
 // test everything with multiple challenges
 describe.each(challenges)('guess', (challenge) => {
@@ -50,7 +72,7 @@ describe.each(challenges)('guess', (challenge) => {
     });
   });
 
-  describe('Guess', () => {
+  describe.only('Guess', () => {
     describe('guess', () => {
       let feePayer: PrivateKey;
       let contractInstance: Guess;
@@ -70,21 +92,46 @@ describe.each(challenges)('guess', (challenge) => {
             zkAppPrivateKey,
             challenge.challenge
           );
-
-          contractInstance = await deploy(zkAppPrivateKey, feePayer, contract);
+          // contractInstance = await deploy(zkAppPrivateKey, feePayer, contract);
           verificationKey = compiledContractToVerificationKey(compiledContract);
+          console.log('old verification key', verificationKey);
         });
 
         it('should generate a valid proof, if the guess is correct', async () => {
           // guess the correct result to make it pass in this case
-          const guess = challenge.challenge;
-          const proof = await proveGuess(contractInstance, feePayer, guess);
+          // const guess = challenge.challenge;
+          // const proof = await proveGuess(contractInstance, feePayer, guess);
 
-          const verified = await verify(proof, verificationKey);
+          // const verified = await verify(proof, verificationKey);
 
-          expect(verified).toBeTruthy();
+          // expect(verified).toBeTruthy();
+
+          const provable = (await (
+            await import('./../test-proof.json')
+          ).default) as Provable;
+
+          const proof = TestProof.fromJSON(provable.proof);
+          console.log('saved verification key', provable.verificationKey);
+
+          // this works if we compile the contract before, because something happens inside of snarky
+          const isValid = await verify(proof, provable.verificationKey);
         });
       });
     });
+  });
+});
+
+describe.skip('test proof', () => {
+  it('should verify a JSON proof, using the provided verification key', async () => {
+    await isReady;
+    setupLocalMinaBlockchain();
+    const provable = (await (
+      await import('./../test-proof.json')
+    ).default) as Provable;
+
+    const proof = TestProof.fromJSON(provable.proof);
+
+    const isValid = await verify(proof, provable.verificationKey);
+    expect(isValid).toBeTruthy();
   });
 });
