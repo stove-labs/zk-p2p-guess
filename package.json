@@ -37,6 +37,6 @@
     "typescript": "^4.7.2"
   },
   "peerDependencies": {
-    "snarkyjs": "file:../../snarkyjs"
+    "snarkyjs": "^0.6.0"
   }
 }

@@ -92,45 +92,20 @@ describe.each(challenges)('guess', (challenge) => {
             zkAppPrivateKey,
             challenge.challenge
           );
-          // contractInstance = await deploy(zkAppPrivateKey, feePayer, contract);
+          contractInstance = await deploy(zkAppPrivateKey, feePayer, contract);
           verificationKey = compiledContractToVerificationKey(compiledContract);
-          console.log('old verification key', verificationKey);
         });
 
         it('should generate a valid proof, if the guess is correct', async () => {
           // guess the correct result to make it pass in this case
-          // const guess = challenge.challenge;
-          // const proof = await proveGuess(contractInstance, feePayer, guess);
+          const guess = challenge.challenge;
+          const proof = await proveGuess(contractInstance, feePayer, guess);
 
-          // const verified = await verify(proof, verificationKey);
+          const verified = await verify(proof, verificationKey);
 
-          // expect(verified).toBeTruthy();
-
-          const provable = (await (
-            await import('./../test-proof.json')
-          ).default) as Provable;
-
-          const proof = TestProof.fromJSON(provable.proof);
-          console.log('saved verification key', provable.verificationKey);
-
-          // this works if we compile the contract before, because something happens inside of snarky
-          const isValid = await verify(proof, provable.verificationKey);
+          expect(verified).toBeTruthy();
         });
       });
     });
-  });
-});
-
-describe.only('test proof', () => {
-  it('should verify a JSON proof, using the provided verification key', async () => {
-    await isReady;
-    const provable = (await (
-      await import('./../test-proof.json')
-    ).default) as Provable;
-
-    const proof = TestProof.fromJSON(provable.proof);
-
-    const isValid = await verify(proof, provable.verificationKey);
-    expect(isValid).toBeTruthy();
   });
 });
