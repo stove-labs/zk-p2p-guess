@@ -1,2 +1,2 @@
-import * as helpers from './helpers.js';
-export default { helpers };
+import * as snarkyjs from 'snarkyjs';
+export default snarkyjs;

@@ -6,6 +6,7 @@ import {
   SmartContract,
   UInt64,
   ZkappPublicInput,
+  isReady,
   verify as snarkyVerify,
 } from 'snarkyjs';
 import { guessFactory, guessFactoryFromHash } from './guess';
@@ -29,6 +30,7 @@ export const challangeToContract = async (
   compiledContract: CompiledContract;
   contract: typeof Guess;
 }> => {
+  await isReady;
   const contract = guessFactory(new UInt64(challange));
   console.log('compiling');
   const compiledContract = await contract.compile();
@@ -45,6 +47,7 @@ export const challangeHashToContract = async (
   compiledContract: CompiledContract;
   contract: typeof Guess;
 }> => {
+  await isReady;
   const contract = guessFactoryFromHash(challangeHash);
   console.log('compiling');
   const compiledContract = await contract.compile();
@@ -81,6 +84,7 @@ export const deploy = async (
   feePayer: PrivateKey,
   contract: Awaited<ReturnType<typeof challangeToContract>>['contract']
 ): Promise<Guess> => {
+  await isReady;
   const contractInstance = new contract(zkAppPrivateKey.toPublicKey());
 
   console.log('deploying');
@@ -105,6 +109,7 @@ export const proveGuess = async (
   feePayer: PrivateKey,
   guess: string | number
 ): Promise<Proof<ZkappPublicInput>> => {
+  await isReady;
   const tx = await Mina.transaction(feePayer, () => {
     contractInstance.guess(new UInt64(guess));
   });
@@ -124,10 +129,11 @@ export const setupLocalMinaBlockchain = () => {
   return { feePayer };
 };
 
-export const verify = (
+export const verify = async (
   proof: Proof<any>,
   verificationKey: string
 ): Promise<boolean> => {
+  await isReady;
   console.log('verifying');
   return snarkyVerify(proof, verificationKey);
 };

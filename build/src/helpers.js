@@ -1,4 +1,4 @@
-import { Mina, AccountUpdate, UInt64, verify as snarkyVerify, } from 'snarkyjs';
+import { Mina, AccountUpdate, UInt64, isReady, verify as snarkyVerify, } from 'snarkyjs';
 import { guessFactory, guessFactoryFromHash } from './guess';
 /**
  * Compile a contract from the provided challange. This will
@@ -7,6 +7,7 @@ import { guessFactory, guessFactoryFromHash } from './guess';
  * @param challange
  */
 export const challangeToContract = async (zkAppPrivateKey, challange) => {
+    await isReady;
     const contract = guessFactory(new UInt64(challange));
     console.log('compiling');
     const compiledContract = await contract.compile();
@@ -16,6 +17,7 @@ export const challangeToContract = async (zkAppPrivateKey, challange) => {
     };
 };
 export const challangeHashToContract = async (zkAppPrivateKey, challangeHash) => {
+    await isReady;
     const contract = guessFactoryFromHash(challangeHash);
     console.log('compiling');
     const compiledContract = await contract.compile();
@@ -41,6 +43,7 @@ export const compiledContractToVerificationKey = ({ verificationKey: { data: ver
  * @param contract
  */
 export const deploy = async (zkAppPrivateKey, feePayer, contract) => {
+    await isReady;
     const contractInstance = new contract(zkAppPrivateKey.toPublicKey());
     console.log('deploying');
     const tx = await Mina.transaction(feePayer, () => {
@@ -58,6 +61,7 @@ export const deploy = async (zkAppPrivateKey, feePayer, contract) => {
  * @param guess
  */
 export const proveGuess = async (contractInstance, feePayer, guess) => {
+    await isReady;
     const tx = await Mina.transaction(feePayer, () => {
         contractInstance.guess(new UInt64(guess));
     });
@@ -74,7 +78,8 @@ export const setupLocalMinaBlockchain = () => {
     const feePayer = localInstance.testAccounts[0].privateKey;
     return { feePayer };
 };
-export const verify = (proof, verificationKey) => {
+export const verify = async (proof, verificationKey) => {
+    await isReady;
     console.log('verifying');
     return snarkyVerify(proof, verificationKey);
 };
