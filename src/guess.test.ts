@@ -72,7 +72,7 @@ describe.each(challenges)('guess', (challenge) => {
     });
   });
 
-  describe.only('Guess', () => {
+  describe('Guess', () => {
     describe('guess', () => {
       let feePayer: PrivateKey;
       let contractInstance: Guess;
@@ -121,10 +121,9 @@ describe.each(challenges)('guess', (challenge) => {
   });
 });
 
-describe.skip('test proof', () => {
+describe.only('test proof', () => {
   it('should verify a JSON proof, using the provided verification key', async () => {
     await isReady;
-    setupLocalMinaBlockchain();
     const provable = (await (
       await import('./../test-proof.json')
     ).default) as Provable;

@@ -1,6 +1,6 @@
 import {
   Mina,
-  Party,
+  AccountUpdate,
   PrivateKey,
   Proof,
   SmartContract,
@@ -31,9 +31,7 @@ export const challangeToContract = async (
 }> => {
   const contract = guessFactory(new UInt64(challange));
   console.log('compiling');
-  const compiledContract = await contract.compile(
-    zkAppPrivateKey.toPublicKey()
-  );
+  const compiledContract = await contract.compile();
   return {
     contract,
     compiledContract,
@@ -49,9 +47,7 @@ export const challangeHashToContract = async (
 }> => {
   const contract = guessFactoryFromHash(challangeHash);
   console.log('compiling');
-  const compiledContract = await contract.compile(
-    zkAppPrivateKey.toPublicKey()
-  );
+  const compiledContract = await contract.compile();
   return {
     contract,
     compiledContract,
@@ -90,7 +86,7 @@ export const deploy = async (
   console.log('deploying');
   const tx = await Mina.transaction(feePayer, () => {
     // TODO: extract funding to beforeEach
-    Party.fundNewAccount(feePayer);
+    AccountUpdate.fundNewAccount(feePayer);
     contractInstance.deploy({ zkappKey: zkAppPrivateKey });
   });
 

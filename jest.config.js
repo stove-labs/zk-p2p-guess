@@ -15,7 +15,13 @@ export default {
   },
   resolver: '<rootDir>/jest-resolver.cjs',
   transformIgnorePatterns: [
-    '<rootDir>/node_modules/(?!snarkyjs/node_modules/tslib)',
+    // DOESNT WORK
+    // '<rootDir>/node_modules/(?!snarkyjs/node_modules/tslib)',
+    // THIS WORKS
     '<rootDir>/../../snarkyjs/node_modules/tslib',
+    // DOESNT WORK
+    // '<rootDir>/node_modules/tslib',
+    // THIS WORKS
+    '<rootDir>/snarkyjs/node_modules/tslib'
   ],
 };

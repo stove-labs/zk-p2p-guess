@@ -1,4 +1,4 @@
-import { Mina, Party, UInt64, verify as snarkyVerify, } from 'snarkyjs';
+import { Mina, AccountUpdate, UInt64, verify as snarkyVerify, } from 'snarkyjs';
 import { guessFactory, guessFactoryFromHash } from './guess';
 /**
  * Compile a contract from the provided challange. This will
@@ -9,7 +9,7 @@ import { guessFactory, guessFactoryFromHash } from './guess';
 export const challangeToContract = async (zkAppPrivateKey, challange) => {
     const contract = guessFactory(new UInt64(challange));
     console.log('compiling');
-    const compiledContract = await contract.compile(zkAppPrivateKey.toPublicKey());
+    const compiledContract = await contract.compile();
     return {
         contract,
         compiledContract,
@@ -18,7 +18,7 @@ export const challangeToContract = async (zkAppPrivateKey, challange) => {
 export const challangeHashToContract = async (zkAppPrivateKey, challangeHash) => {
     const contract = guessFactoryFromHash(challangeHash);
     console.log('compiling');
-    const compiledContract = await contract.compile(zkAppPrivateKey.toPublicKey());
+    const compiledContract = await contract.compile();
     return {
         contract,
         compiledContract,
@@ -45,7 +45,7 @@ export const deploy = async (zkAppPrivateKey, feePayer, contract) => {
     console.log('deploying');
     const tx = await Mina.transaction(feePayer, () => {
         // TODO: extract funding to beforeEach
-        Party.fundNewAccount(feePayer);
+        AccountUpdate.fundNewAccount(feePayer);
         contractInstance.deploy({ zkappKey: zkAppPrivateKey });
     });
     tx.send();
